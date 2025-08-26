@@ -32,6 +32,13 @@
           <label for="produto">Produto</label>
           <input type="text" name="produto" class="form-control" required>
 
+          <label for="produto">Classe do material</label>
+          <select name="classeMaterial" id="classeMaterial" class="custom-select" required>
+            <option value="eletricos">Elétricos</option>
+            <option value="hidraulicos">Hidráulicos</option>
+            <option value="construcao">Construção</option>
+          </select>
+
           <label for="compra">Valor da compra</label>
           <input type="number" name="compra" class="form-control" step="0.01" lang="en" required>
 
@@ -91,7 +98,14 @@
   </div>
 
   <div id="listaEstoque" class="border rounded m-2 p-2">
-    <h5 class="text-center">Estoque</h5>
+    <div class="d-flex p-2 align-items-center">
+      <h5 class="text-center m-0" style="width: 60%;">Estoque de materiais </h5>
+      <select name="filtro" id="filtroEstoque" class="custom-select" style="width: 40%;">
+        <option value="eletricos">Elétricos</option>
+        <option value="hidraulicos">Hidráulicos</option>
+        <option value="construcao">Construção</option>
+      </select>
+    </div>
 
     <div class="border rounded" style="background-color: rgb(231, 231, 231);">
       <div class="text-center" style="display: grid; grid-template-columns: 25% 25% 25% 25%;">
@@ -154,6 +168,7 @@
     const linkListaEstoque = document.querySelector('#linkListaEstoque');
     const vendas = document.querySelector('#vendas');
     const compras = document.querySelector('#compras')
+    const filtroEstoque = document.querySelector('#filtroEstoque');
 
     function maiuscula(str) {
       if (!str) return "";
@@ -194,7 +209,7 @@
 
     document.addEventListener("DOMContentLoaded", carregarProdutosNoSelect);
 
-    function carregarEstoque() {
+    function carregarEstoque(tipoMaterial) {
       let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
       let saida = JSON.parse(localStorage.getItem("saida")) || [];
       let estoqueAgrupado = {};
@@ -210,20 +225,22 @@
         }
       });
 
-        saida.forEach(ps => {
-          if (estoqueAgrupado[ps.produto]) {
-            estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
-          }
-        })
+      saida.forEach(ps => {
+        if (estoqueAgrupado[ps.produto]) {
+          estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
+        }
+      })
 
       Object.values(estoqueAgrupado).forEach(p => {
-        listaProdutos.innerHTML += `
-          <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 25% 25% 25% 25%;">
-            <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-            <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
-            <p class="mb-2 mt-2">${p.quantidade}</p>
-            <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-          </div>`;
+        if (tipoMaterial == p.classeMaterial) {
+          listaProdutos.innerHTML += `
+            <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 25% 25% 25% 25%;">
+              <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
+              <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
+              <p class="mb-2 mt-2">${p.quantidade}</p>
+              <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
+            </div>`;
+        }
       })
     }
     function carregarCompras() {
@@ -244,7 +261,6 @@
       const listaVendas = document.querySelector('#listaVendas');
       let saida = JSON.parse(localStorage.getItem("saida")) || [];
       saida.forEach(p => {
-        console.log(p)
         listaVendas.innerHTML += `
           <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 20% 20% 12% 20% 28%;">
             <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
@@ -256,7 +272,7 @@
       })
     }
     
-    carregarEstoque();
+    carregarEstoque('eletricos');
     carregarCompras();
     carregarVendas();
 
@@ -304,6 +320,9 @@
       adicionarSaidas(dados);
     })
     
+    filtroEstoque.addEventListener('click', e => {
+      carregarEstoque(e.target.value);
+    })
   </script>
 </body>
 </html>

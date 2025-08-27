@@ -111,12 +111,14 @@ function carregarEstoque(tipoMaterial) {
         }
     }
     })
-    Swal.fire({
-        title: 'JM Materiais de contrução',
-        html: avisos.join('<br>'),
-        icon: 'warning',
-        confirmButtonText: 'OK'
-    });
+    if (avisos.length > 0) {
+        Swal.fire({
+            title: 'JM Materiais de contrução',
+            html: avisos.join('<br>'),
+            icon: 'warning',
+            confirmButtonText: 'OK'
+        });
+    }
 }
 function carregarCompras() {
     const listaCompras = document.querySelector('#listaCompras');

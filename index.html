@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estoque</title>
+  <title>JM Materiais de contrução</title>
 
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
@@ -32,7 +32,9 @@
 
         <form action="" id="formNovoProduto" class="form border rounded m-2 p-3">
           <label for="produto">Produto</label>
-          <input type="text" name="produto" class="form-control" required>
+          <input id="inputProduto" type="text" list="listaInputProdutos" name="produto" class="form-control" onchange="formEntrada()" required>
+          <datalist id="listaInputProdutos">
+          </datalist>
 
           <label for="produto">Classe do material</label>
           <select name="classeMaterial" id="classeMaterial" class="custom-select" required>
@@ -49,6 +51,11 @@
 
           <label for="quantidade">Quantidade</label>
           <input type="number" name="quantidade" class="form-control" required>
+
+          <label for="estMinimo">Estoque mínimo</label>
+          <input id="inputEstMin" type="number" name="estMinimo" class="form-control" required>
+          <datalist id="listaInputEstMin">
+          </datalist>
 
           <label for="venda">Valor de venda</label>
           <input type="number" name="venda" class="form-control" step="0.01" lang="en" required>
@@ -110,11 +117,11 @@
     </div>
 
     <div class="border rounded" style="background-color: rgb(231, 231, 231);">
-      <div class="text-center" style="display: grid; grid-template-columns: 25% 25% 25% 25%;">
+      <div class="text-center" style="display: grid; grid-template-columns: 20% 20% 20% 20% 20%;">
         <p class="mb-2 mt-2">Produto</p>
         <p class="mb-2 mt-2">Compra</p>
-        <!-- <p class="mb-2 mt-2">Fornecedor</p> -->
         <p class="mb-2 mt-2">Qtd</p>
+        <p class="mb-2 mt-2">Qtd Min</p>
         <p class="mb-2 mt-2">Venda</p>
       </div>  
     </div>
@@ -142,11 +149,12 @@
     <h5 class="text-center">Lista de Compras</h5>
 
     <div class="border rounded" style="background-color: rgb(231, 231, 231);">
-      <div class="text-center" style="display: grid; grid-template-columns: 20% 20% 25% 15% 20%;">
+      <div class="text-center" style="display: grid; grid-template-columns: 17% 17% 25% 12% 12% 17%;">
         <p class="mb-2 mt-2">Produto</p>
         <p class="mb-2 mt-2">Compra</p>
         <p class="mb-2 mt-2">Fornecedor</p>
         <p class="mb-2 mt-2">Qtd</p>
+        <p class="mb-2 mt-2">Qtd Min</p>
         <p class="mb-2 mt-2">Venda</p>
       </div>  
     </div>
@@ -154,187 +162,7 @@
     <div id="listaCompras" class="mt-2"></div>
   </div>
 
-  <script>
-    if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/estoque/sw.js')
-      .then(registration => {
-          console.log('Service Worker registrado com sucesso:', registration.scope);
-      })
-      .catch(error => {
-          console.error('Falha ao registrar o Service Worker:', error);
-      });
-    }
-
-    const popup = document.querySelector('#popup');
-    const fecharPopup = document.querySelector('#fecharPopup');
-    const linkAdicionarProduto = document.querySelector('#linkAdicionarProduto');
-    const linkVenderProduto = document.querySelector('#linkVenderProduto');
-    const divAdicionarProduto = document.querySelector('#divAdicionarProduto');
-    const divVenderProduto = document.querySelector('#divVenderProduto');
-    const formNovoProduto = document.querySelector('#formNovoProduto');
-    const listaProdutos = document.querySelector('#lista');
-    const listaEstoque = document.querySelector('#listaEstoque');
-    const formNovaVenda = document.querySelector('#formNovaVenda');
-    const linkListaCompras = document.querySelector('#linkListaCompras');
-    const linkListaVendas = document.querySelector('#linkListaVendas');
-    const linkListaEstoque = document.querySelector('#linkListaEstoque');
-    const vendas = document.querySelector('#vendas');
-    const compras = document.querySelector('#compras')
-    const filtroEstoque = document.querySelector('#filtroEstoque');
-
-    function maiuscula(str) {
-      if (!str) return "";
-      return str
-        .toLowerCase()
-        .split(" ")
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(" ");
-    }
-
-    function salvarProduto(produto) {
-      let estoque = JSON.parse(localStorage.getItem("entrada")) || [];
-      
-      produto.produto = produto.produto.toLowerCase();
-      estoque.push(produto);
-      localStorage.setItem("entrada", JSON.stringify(estoque));
-    }
-    function adicionarSaidas(produto) {
-      let estoque = JSON.parse(localStorage.getItem("saida")) || [];
-      
-      estoque.push(produto);
-      localStorage.setItem("saida", JSON.stringify(estoque));
-    }
-
-    function carregarProdutosNoSelect() {
-      let estoque = JSON.parse(localStorage.getItem("entrada")) || [];
-
-      let select = document.querySelector("#selectProduto");
-      select.innerHTML = '<option value="">Selecione um produto</option>';
-
-      estoque.forEach(produto => {
-        let option = document.createElement("option");
-        option.value = produto.produto;
-        option.textContent = maiuscula(produto.produto);
-        select.appendChild(option);
-      });
-    }
-
-    document.addEventListener("DOMContentLoaded", carregarProdutosNoSelect);
-
-    function carregarEstoque(tipoMaterial) {
-      let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
-      let saida = JSON.parse(localStorage.getItem("saida")) || [];
-      let estoqueAgrupado = {};
-      listaProdutos.innerHTML = "";
-
-      entrada.forEach(p => {
-        if (estoqueAgrupado[p.produto]) {
-          estoqueAgrupado[p.produto].compra = (((Number(estoqueAgrupado[p.produto].compra) * Number(estoqueAgrupado[p.produto].quantidade)) + (Number(p.compra) * Number(p.quantidade)))
-            / (Number(estoqueAgrupado[p.produto].quantidade) + Number(p.quantidade))).toFixed(2);
-          estoqueAgrupado[p.produto].quantidade += Number(p.quantidade);
-        } else {
-          estoqueAgrupado[p.produto] = { ...p, quantidade: Number(p.quantidade) };
-        }
-      });
-
-      saida.forEach(ps => {
-        if (estoqueAgrupado[ps.produto]) {
-          estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
-        }
-      })
-
-      Object.values(estoqueAgrupado).forEach(p => {
-        if (tipoMaterial == p.classeMaterial) {
-          listaProdutos.innerHTML += `
-            <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 25% 25% 25% 25%;">
-              <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-              <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
-              <p class="mb-2 mt-2">${p.quantidade}</p>
-              <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-            </div>`;
-        }
-      })
-    }
-    function carregarCompras() {
-      const listaCompras = document.querySelector('#listaCompras');
-      let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
-      entrada.forEach(p => {
-        listaCompras.innerHTML += `
-          <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 20% 20% 25% 15% 20%;">
-            <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-            <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
-            <p class="mb-2 mt-2">${p.fornecedor}</p>
-            <p class="mb-2 mt-2">${p.quantidade}</p>
-            <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-          </div>`;
-      })
-    }
-    function carregarVendas() {
-      const listaVendas = document.querySelector('#listaVendas');
-      let saida = JSON.parse(localStorage.getItem("saida")) || [];
-      saida.forEach(p => {
-        listaVendas.innerHTML += `
-          <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 20% 20% 12% 20% 28%;">
-            <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-            <p class="mb-2 mt-2">${p.cliente}</p>
-            <p class="mb-2 mt-2">${p.quantidade}</p>
-            <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-            <p class="mb-2 mt-2">${p.dataVenda}</p>
-          </div>`;
-      })
-    }
-    
-    carregarEstoque('eletricos');
-    carregarCompras();
-    carregarVendas();
-
-    fecharPopup.addEventListener('click', () => {
-      popup.classList.add('d-none');
-      popup.classList.remove('d-flex');
-      formNovaVenda.reset();
-      formNovoProduto.reset();
-    });
-
-    linkAdicionarProduto.addEventListener('click', () => {
-      popup.classList.toggle('d-flex');
-      divVenderProduto.classList.add('d-none');
-      divAdicionarProduto.classList.remove('d-none');
-    });
-    linkVenderProduto.addEventListener('click', () => {
-      popup.classList.toggle('d-flex');
-      divVenderProduto.classList.remove('d-none');
-      divAdicionarProduto.classList.add('d-none');
-    });
-    linkListaCompras.addEventListener('click', () => {
-      vendas.classList.add('d-none');
-      compras.classList.remove('d-none');
-      listaEstoque.classList.add('d-none');
-    })
-    linkListaVendas.addEventListener('click', () => {
-      vendas.classList.remove('d-none');
-      compras.classList.add('d-none');
-      listaEstoque.classList.add('d-none');
-    })
-    linkListaEstoque.addEventListener('click', () => {
-      vendas.classList.add('d-none');
-      compras.classList.add('d-none');
-      listaEstoque.classList.remove('d-none');
-    })
-    formNovoProduto.addEventListener('submit', e => {
-      const dados = Object.fromEntries(new FormData(formNovoProduto));
-      dados.compra = parseFloat(dados.compra.replace(',','.')).toFixed(2);
-      dados.venda = parseFloat(dados.venda.replace(',','.')).toFixed(2);
-      salvarProduto(dados);
-    })
-    formNovaVenda.addEventListener('submit', e => {
-      const dados = Object.fromEntries(new FormData(formNovaVenda));
-      dados.venda = parseFloat(dados.venda.replace(',','.')).toFixed(2);
-      adicionarSaidas(dados);
-    })
-    
-    filtroEstoque.addEventListener('click', e => {
-      carregarEstoque(e.target.value);
-    })
-  </script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="/script.js"></script>
 </body>
 </html>

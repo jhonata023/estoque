@@ -40,14 +40,39 @@ function salvarProduto(produto) {
     let estoque = JSON.parse(localStorage.getItem("entrada")) || [];
     
     produto.produto = produto.produto.toLowerCase();
+    produto.id = Date.now();
     estoque.push(produto);
     localStorage.setItem("entrada", JSON.stringify(estoque));
 }
 function adicionarSaidas(produto) {
     let estoque = JSON.parse(localStorage.getItem("saida")) || [];
-    
+    produto.id = Date.now();
     estoque.push(produto);
     localStorage.setItem("saida", JSON.stringify(estoque));
+}
+
+function clickLancamento (elemento) {
+    elemento.children[1].classList.toggle('d-flex');
+    elemento.children[0].classList.toggle('d-none');
+}
+function clickExcluir(elemento, operacao) {
+    let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
+    let saida = JSON.parse(localStorage.getItem("saida")) || [];
+    const divProduto = elemento.closest('.produto');
+    const id = divProduto.dataset.id;
+    
+    if (operacao == 'compras') {
+        entrada = entrada.filter(p => p.id != id);
+        localStorage.setItem('entrada', JSON.stringify(entrada));
+        carregarCompras();
+    }
+    else if (operacao == 'vendas')  {
+        saida = saida.filter(p => p.id != id);
+        localStorage.setItem('saida', JSON.stringify(saida));
+        carregarVendas();
+    }
+
+    carregarEstoque();
 }
 
 function carregarProdutosNoSelect() {
@@ -119,39 +144,54 @@ function carregarEstoque(tipoMaterial) {
             confirmButtonText: 'OK'
         });
     }
+
+    carregarProdutosNoSelect();
 }
 function carregarCompras() {
     const listaCompras = document.querySelector('#listaCompras');
     let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
     listaInputProdutos.innerHTML = '';
+    listaCompras.innerHTML = '';
 
     entrada.forEach(p => {
     if (!listaInputProdutos.innerHTML.includes(`<option value="${p.produto}"></option>`)) {
         listaInputProdutos.innerHTML += `<option value="${p.produto}"></option>`
     }
     listaCompras.innerHTML += `
-        <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 17% 17% 25% 12% 12% 17%;">
-        <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-        <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
-        <p class="mb-2 mt-2">${p.fornecedor}</p>
-        <p class="mb-2 mt-2">${p.quantidade}</p>
-        <p class="mb-2 mt-2">${p.estMinimo}</p>
-        <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
+        <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
+            <div class="text-center" style="display: grid; grid-template-columns: 17% 17% 25% 12% 12% 17%;">
+                <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
+                <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
+                <p class="mb-2 mt-2">${p.fornecedor}</p>
+                <p class="mb-2 mt-2">${p.quantidade}</p>
+                <p class="mb-2 mt-2">${p.estMinimo}</p>
+                <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
+            </div>
+            <div class="d-none justify-content-around">
+                <p class="bg-danger m-2 pl-2 pr-2 rounded" onclick="clickExcluir(this, 'compras')">Excluir</p>
+            </div>
         </div>`;
     })
 }
 function carregarVendas() {
     const listaVendas = document.querySelector('#listaVendas');
     let saida = JSON.parse(localStorage.getItem("saida")) || [];
+    listaVendas.innerHTML = '';
+
     saida.forEach(p => {
     listaVendas.innerHTML += `
-        <div class="produto border-bottom text-center" style="display: grid; grid-template-columns: 20% 20% 12% 20% 28%;">
-        <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-        <p class="mb-2 mt-2">${p.cliente}</p>
-        <p class="mb-2 mt-2">${p.quantidade}</p>
-        <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-        <p class="mb-2 mt-2">${p.dataVenda}</p>
-        </div>`;
+    <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
+        <div class="text-center" style="display: grid; grid-template-columns: 20% 20% 12% 20% 28%;">
+            <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
+            <p class="mb-2 mt-2">${p.cliente}</p>
+            <p class="mb-2 mt-2">${p.quantidade}</p>
+            <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
+            <p class="mb-2 mt-2">${p.dataVenda}</p>
+        </div>
+        <div class="d-none justify-content-around">
+            <p class="bg-danger m-2 pl-2 pr-2 rounded" onclick="clickExcluir(this, 'vendas')">Excluir</p>
+        </div>
+    </div>`;
     })
 }
 function formEntrada() {
@@ -164,7 +204,6 @@ function formEntrada() {
     })
 }
 
-document.addEventListener("DOMContentLoaded", carregarProdutosNoSelect);
 carregarEstoque('eletricos');
 carregarCompras();
 carregarVendas();
@@ -210,7 +249,8 @@ formNovoProduto.addEventListener('submit', e => {
 formNovaVenda.addEventListener('submit', e => {
     const dados = Object.fromEntries(new FormData(formNovaVenda));
     dados.venda = parseFloat(dados.venda.replace(',','.')).toFixed(2);
-    adicionarSaidas(dados);
+
+    if (dados.produto != '') adicionarSaidas(dados);
 })
 
 filtroEstoque.addEventListener('click', e => {

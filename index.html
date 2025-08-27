@@ -18,11 +18,15 @@
       position: fixed;
       z-index: 9999;
     }
+    .produto:hover {
+      background-color: rgb(204, 204, 204);
+      cursor: pointer;
+    }
   </style>
 </head>
 <body>
   <div id="popup" class="popup d-none justify-content-center align-items-center" style="height: 100vh;">
-    <div id="div-profile" class="bg-light p-1 rounded" style="width: 80%;">
+    <div id="div-profile" class="bg-light p-1 rounded" style="width: 80%; overflow: auto; max-height: 80%;">
       <div class="d-flex justify-content-end">
         <div id="fecharPopup" class="pr-2 pl-2 btn btn-outline-danger">X</div>
       </div>
@@ -58,7 +62,7 @@
           </datalist>
 
           <label for="venda">Valor de venda</label>
-          <input type="number" name="venda" class="form-control" step="0.01" lang="en" required>
+          <input id="lucro" type="number" name="venda" class="form-control" step="0.01" lang="en" required>
 
           <label for="dataCompra">Data da Compra</label>
           <input type="date" name="dataCompra" class="form-control" required>
@@ -73,7 +77,6 @@
         <form action="" id="formNovaVenda" class="form border rounded m-2 p-3">
           <label for="produto">Produto</label>
           <select name="produto" class="custom-select" id="selectProduto">
-            <option value="tomada">Tomada</option>
           </select>
 
           <label for="cliente">Cliente</label>
@@ -83,7 +86,7 @@
           <input type="number" name="quantidade" class="form-control" required>
 
           <label for="venda">Valor de venda unitária</label>
-          <input type="text" name="venda" class="form-control" step="0.01" lang="en" required>
+          <input type="number" name="venda" class="form-control" step="0.01" lang="en" required>
 
           <label for="dataVenda">Data da Venda</label>
           <input type="date" name="dataVenda" class="form-control" required>

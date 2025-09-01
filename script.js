@@ -26,6 +26,7 @@ const compras = document.querySelector('#compras')
 const filtroEstoque = document.querySelector('#filtroEstoque');
 const listaInputProdutos = document.querySelector('#listaInputProdutos');
 const listaInputEstMin = document.querySelector('#listaInputEstMin');
+let estoqueAgrupado = {};
 
 function maiuscula(str) {
     if (!str) return "";
@@ -34,6 +35,27 @@ function maiuscula(str) {
     .split(" ")
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+}
+function calcularEstoque() {
+    let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
+    let saida = JSON.parse(localStorage.getItem("saida")) || [];
+
+    entrada.forEach(p => {
+    if (estoqueAgrupado[p.produto]) {
+        estoqueAgrupado[p.produto].compra = (((Number(estoqueAgrupado[p.produto].compra) * Number(estoqueAgrupado[p.produto].quantidade)) + (Number(p.compra) * Number(p.quantidade)))
+        / (Number(estoqueAgrupado[p.produto].quantidade) + Number(p.quantidade))).toFixed(2);
+        estoqueAgrupado[p.produto].quantidade += Number(p.quantidade);
+        estoqueAgrupado[p.produto].estMinimo = p.estMinimo;
+    } else {
+        estoqueAgrupado[p.produto] = { ...p, quantidade: Number(p.quantidade) };
+    }
+    });
+
+    saida.forEach(ps => {
+        if (estoqueAgrupado[ps.produto]) {
+            estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
+        }
+    })
 }
 
 function salvarProduto(produto) {
@@ -89,32 +111,14 @@ function carregarProdutosNoSelect() {
     });
 }
 function carregarEstoque(tipoMaterial) {
-    let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
-    let saida = JSON.parse(localStorage.getItem("saida")) || [];
-    let estoqueAgrupado = {};
     let avisos = [];
     listaProdutos.innerHTML = "";
 
-    entrada.forEach(p => {
-    if (estoqueAgrupado[p.produto]) {
-        estoqueAgrupado[p.produto].compra = (((Number(estoqueAgrupado[p.produto].compra) * Number(estoqueAgrupado[p.produto].quantidade)) + (Number(p.compra) * Number(p.quantidade)))
-        / (Number(estoqueAgrupado[p.produto].quantidade) + Number(p.quantidade))).toFixed(2);
-        estoqueAgrupado[p.produto].quantidade += Number(p.quantidade);
-        estoqueAgrupado[p.produto].estMinimo = p.estMinimo;
-    } else {
-        estoqueAgrupado[p.produto] = { ...p, quantidade: Number(p.quantidade) };
-    }
-    });
+    calcularEstoque();
 
-    saida.forEach(ps => {
-    if (estoqueAgrupado[ps.produto]) {
-        estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
-    }
-    })
     Object.values(estoqueAgrupado).forEach(p => {
     if (tipoMaterial == p.classeMaterial) {
         if (p.quantidade < p.estMinimo) {
-            // window.alert(`O estoque precisa de ${p.produto}`);
             avisos.push(`⚠️ O estoque precisa de ${p.produto}`);
             listaProdutos.innerHTML += `
                 <div class="bg-danger produto border-bottom text-center rounded" style="display: grid; grid-template-columns: 20% 20% 20% 20% 20%;">
@@ -201,6 +205,16 @@ function formEntrada() {
 
     entradas.forEach(entrada => {
         if (entrada.produto == inputProduto.value) inputEstMin.value = entrada.estMinimo;
+    })
+}
+function formSaida(el) {
+    let selectProduto = document.querySelector('#selectProduto');
+    calcularEstoque();
+
+    Object.values(estoqueAgrupado).forEach(p => {
+        if (selectProduto.value == p.produto) {
+            if (p.quantidade < el.value) el.value = p.quantidade;
+        }
     })
 }
 

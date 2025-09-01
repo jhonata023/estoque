@@ -39,6 +39,7 @@ function maiuscula(str) {
 function calcularEstoque() {
     let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
     let saida = JSON.parse(localStorage.getItem("saida")) || [];
+    estoqueAgrupado = {};
 
     entrada.forEach(p => {
     if (estoqueAgrupado[p.produto]) {

@@ -10,8 +10,8 @@ if ('serviceWorker' in navigator) {
 
 const popup = document.querySelector('#popup');
 const fecharPopup = document.querySelector('#fecharPopup');
-const linkAdicionarProduto = document.querySelector('#linkAdicionarProduto');
-const linkVenderProduto = document.querySelector('#linkVenderProduto');
+const linkGestao = document.querySelector('#linkGestao');
+const linkHome = document.querySelector('#linkHome');
 const divAdicionarProduto = document.querySelector('#divAdicionarProduto');
 const divVenderProduto = document.querySelector('#divVenderProduto');
 const formNovoProduto = document.querySelector('#formNovoProduto');
@@ -26,6 +26,8 @@ const compras = document.querySelector('#compras')
 const filtroEstoque = document.querySelector('#filtroEstoque');
 const listaInputProdutos = document.querySelector('#listaInputProdutos');
 const listaInputEstMin = document.querySelector('#listaInputEstMin');
+const optionCompra = document.querySelector('#optionCompra');
+const optionVenda = document.querySelector('#optionVenda');
 let estoqueAgrupado = {};
 let avisosTrue = 0;
 
@@ -117,7 +119,8 @@ function carregarEstoque(tipoMaterial) {
     listaProdutos.innerHTML = "";
 
     calcularEstoque();
-
+    document.querySelector('#qtdItens').innerText = Object.values(estoqueAgrupado).length;
+    
     Object.values(estoqueAgrupado).forEach(p => {
     if (tipoMaterial == p.classeMaterial) {
         if (p.quantidade < p.estMinimo) {
@@ -160,33 +163,38 @@ function carregarCompras() {
     let entrada = JSON.parse(localStorage.getItem("entrada")) || [];
     listaInputProdutos.innerHTML = '';
     listaCompras.innerHTML = '';
+    let valorVendas = 0;
 
     entrada.forEach(p => {
-    if (!listaInputProdutos.innerHTML.includes(`<option value="${p.produto}"></option>`)) {
-        listaInputProdutos.innerHTML += `<option value="${p.produto}"></option>`
-    }
-    listaCompras.innerHTML += `
-        <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
-            <div class="text-center" style="display: grid; grid-template-columns: 17% 17% 25% 12% 12% 17%;">
-                <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
-                <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
-                <p class="mb-2 mt-2">${p.fornecedor}</p>
-                <p class="mb-2 mt-2">${p.quantidade}</p>
-                <p class="mb-2 mt-2">${p.estMinimo}</p>
-                <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
-            </div>
-            <div class="d-none justify-content-around">
-                <p class="bg-danger m-2 pl-2 pr-2 rounded" onclick="clickExcluir(this, 'compras')">Excluir</p>
-            </div>
-        </div>`;
+        valorVendas += Number(p.compra) * p.quantidade;
+        if (!listaInputProdutos.innerHTML.includes(`<option value="${p.produto}"></option>`)) {
+            listaInputProdutos.innerHTML += `<option value="${p.produto}"></option>`
+        }
+        listaCompras.innerHTML += `
+            <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
+                <div class="text-center" style="display: grid; grid-template-columns: 17% 17% 25% 12% 12% 17%;">
+                    <p class="mb-2 mt-2">${maiuscula(p.produto)}</p>
+                    <p class="mb-2 mt-2">R$ ${Number(p.compra).toFixed(2)}</p>
+                    <p class="mb-2 mt-2">${p.fornecedor}</p>
+                    <p class="mb-2 mt-2">${p.quantidade}</p>
+                    <p class="mb-2 mt-2">${p.estMinimo}</p>
+                    <p class="mb-2 mt-2">R$ ${Number(p.venda).toFixed(2)}</p>
+                </div>
+                <div class="d-none justify-content-around">
+                    <p class="bg-danger m-2 pl-2 pr-2 rounded" onclick="clickExcluir(this, 'compras')">Excluir</p>
+                </div>
+            </div>`;
     })
+    document.querySelector('#valorAplicado').innerHTML = `<p><b>Valor Aplicado: </b>R$ ${valorVendas.toFixed(2)}</p>`;
 }
 function carregarVendas() {
     const listaVendas = document.querySelector('#listaVendas');
     let saida = JSON.parse(localStorage.getItem("saida")) || [];
     listaVendas.innerHTML = '';
+    let valorRecebido = 0
 
     saida.forEach(p => {
+    valorRecebido += Number(p.venda) * p.quantidade;
     listaVendas.innerHTML += `
     <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
         <div class="text-center" style="display: grid; grid-template-columns: 20% 20% 12% 20% 28%;">
@@ -201,6 +209,8 @@ function carregarVendas() {
         </div>
     </div>`;
     })
+
+    document.querySelector('#valorRecebido').innerHTML = `<p><b>Valor Recebido: </b>R$ ${valorRecebido.toFixed(2)}</p>`;
 }
 function formEntrada() {
     const inputEstMin = document.querySelector('#inputEstMin');
@@ -233,30 +243,46 @@ fecharPopup.addEventListener('click', () => {
     formNovoProduto.reset();
 });
 
-linkAdicionarProduto.addEventListener('click', () => {
+linkHome.addEventListener('click', () => {
+    document.querySelector('#home').classList.remove('d-none');
+    vendas.classList.add('d-none');
+    compras.classList.add('d-none');
+    listaEstoque.classList.add('d-none');
+});
+linkGestao.addEventListener('click', () => {
     popup.classList.toggle('d-flex');
     divVenderProduto.classList.add('d-none');
     divAdicionarProduto.classList.remove('d-none');
 });
-linkVenderProduto.addEventListener('click', () => {
-    popup.classList.toggle('d-flex');
+optionCompra.addEventListener('click', () => {
+    optionCompra.parentNode.classList.add('active');
+    optionVenda.parentNode.classList.remove('active');
+    divVenderProduto.classList.add('d-none');
+    divAdicionarProduto.classList.remove('d-none');
+})
+optionVenda.addEventListener('click', () => {
+    optionCompra.parentNode.classList.remove('active');
+    optionVenda.parentNode.classList.add('active');
     divVenderProduto.classList.remove('d-none');
     divAdicionarProduto.classList.add('d-none');
-});
+})
 linkListaCompras.addEventListener('click', () => {
     vendas.classList.add('d-none');
     compras.classList.remove('d-none');
     listaEstoque.classList.add('d-none');
+    document.querySelector('#home').classList.add('d-none');
 })
 linkListaVendas.addEventListener('click', () => {
     vendas.classList.remove('d-none');
     compras.classList.add('d-none');
     listaEstoque.classList.add('d-none');
+    document.querySelector('#home').classList.add('d-none');
 })
 linkListaEstoque.addEventListener('click', () => {
     vendas.classList.add('d-none');
     compras.classList.add('d-none');
     listaEstoque.classList.remove('d-none');
+    document.querySelector('#home').classList.add('d-none');
 })
 formNovoProduto.addEventListener('submit', e => {
     const dados = Object.fromEntries(new FormData(formNovoProduto));

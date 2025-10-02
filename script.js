@@ -164,8 +164,13 @@ function carregarCompras() {
     listaInputProdutos.innerHTML = '';
     listaCompras.innerHTML = '';
     let valorVendas = 0;
+    let vendasUMes = 0;
 
     entrada.forEach(p => {
+        const date = new Date();
+        if (p.dataCompra.slice(5,7) == date.getMonth() + 1) {
+            vendasUMes += Number(p.compra) * p.quantidade;
+        }
         valorVendas += Number(p.compra) * p.quantidade;
         if (!listaInputProdutos.innerHTML.includes(`<option value="${p.produto}"></option>`)) {
             listaInputProdutos.innerHTML += `<option value="${p.produto}"></option>`
@@ -185,16 +190,26 @@ function carregarCompras() {
                 </div>
             </div>`;
     })
+
     document.querySelector('#valorAplicado').innerText = `${valorVendas}`;
-    document.querySelector('#centavosValorAplicado').innerText = `,${valorVendas.toFixed(2).slice(3)}`;
+    document.querySelector('#centavosValorAplicado').innerText = `,${valorVendas.toFixed(2).slice(4)}`;
+
+    document.querySelector('#valorAplicadoUMes').innerText = `${vendasUMes}`;
+    document.querySelector('#centavosValorAplicadoUMes').innerText = `,${vendasUMes.toFixed(2).slice(4)}`;
 }
 function carregarVendas() {
     const listaVendas = document.querySelector('#listaVendas');
     let saida = JSON.parse(localStorage.getItem("saida")) || [];
     listaVendas.innerHTML = '';
-    let valorRecebido = 0
+    let valorRecebido = 0;
+    let recebidoUMes = 0;
 
     saida.forEach(p => {
+    const date = new Date();
+    if (p.dataVenda.slice(5,7) == date.getMonth() + 1) {
+        recebidoUMes += Number(p.venda) * p.quantidade;
+    }
+
     valorRecebido += Number(p.venda) * p.quantidade;
     listaVendas.innerHTML += `
     <div class="produto border-bottom" data-id="${p.id}" onclick="clickLancamento(this)">
@@ -212,7 +227,10 @@ function carregarVendas() {
     })
 
     document.querySelector('#valorRecebido').innerText = `${valorRecebido}`;
-    document.querySelector('#centavosValorRecebido').innerText = `,${valorRecebido.toFixed(2).slice(3)}`;
+    document.querySelector('#centavosValorRecebido').innerText = `,${valorRecebido.toFixed(2).slice(4)}`;
+
+    document.querySelector('#valorRecebidoUMes').innerText = `${recebidoUMes}`;
+    document.querySelector('#centavosValorRecebidoUMes').innerText = `,${recebidoUMes.toFixed(2).slice(4)}`;
 }
 function formEntrada() {
     const inputEstMin = document.querySelector('#inputEstMin');

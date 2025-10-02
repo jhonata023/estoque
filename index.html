@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" 
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
-  <!-- <link rel="manifest" href="/estoque/mainfest.json"> -->
+  <link rel="manifest" href="/estoque/mainfest.json">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
@@ -129,9 +129,24 @@
         </div>
     </div>
     
-    <div class="bg-success shadow-lg rounded text-center p-2 mb-3">
-        <p id="valorAplicado"><b>Valor Aplicado: </b>R$ 00,00</p>
-        <p id="valorRecebido" class="m-0"><b>Valor Recebido: </b>R$ 00,00</p>
+    <div class="bg-warning shadow-lg rounded text-center mb-3 d-flex justify-content-around">
+      <div class="rounded p-2">
+        <p class="m-0"><b>Valor Aplicado</b></p>
+        <div class="d-flex align-items-center justify-content-center">
+          <p class="m-0">R$</p>
+          <h2 id="valorAplicado" class="m-0">00</h2>
+          <p id="centavosValorAplicado" class="m-0">,00</p>
+        </div>
+      </div>
+
+      <div class="rounded p-2">
+        <p class="m-0"><b>Valor Recebido</b></p>
+        <div class="d-flex align-items-center justify-content-center">
+          <p class="m-0">R$</p>
+          <h2 id="valorRecebido" class="m-0">00</h2>
+          <p id="centavosValorRecebido" class="m-0">,00</p>
+        </div>
+      </div>
     </div>
   </div>
 

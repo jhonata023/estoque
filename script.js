@@ -185,7 +185,8 @@ function carregarCompras() {
                 </div>
             </div>`;
     })
-    document.querySelector('#valorAplicado').innerHTML = `<p><b>Valor Aplicado: </b>R$ ${valorVendas.toFixed(2)}</p>`;
+    document.querySelector('#valorAplicado').innerText = `${valorVendas}`;
+    document.querySelector('#centavosValorAplicado').innerText = `,${valorVendas.toFixed(2).slice(3)}`;
 }
 function carregarVendas() {
     const listaVendas = document.querySelector('#listaVendas');
@@ -210,7 +211,8 @@ function carregarVendas() {
     </div>`;
     })
 
-    document.querySelector('#valorRecebido').innerHTML = `<p><b>Valor Recebido: </b>R$ ${valorRecebido.toFixed(2)}</p>`;
+    document.querySelector('#valorRecebido').innerText = `${valorRecebido}`;
+    document.querySelector('#centavosValorRecebido').innerText = `,${valorRecebido.toFixed(2).slice(3)}`;
 }
 function formEntrada() {
     const inputEstMin = document.querySelector('#inputEstMin');

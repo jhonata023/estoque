@@ -9,6 +9,7 @@
   integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 
   <link rel="manifest" href="/estoque/mainfest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
   <style>
     .popup {
@@ -30,6 +31,15 @@
       <div class="d-flex justify-content-end">
         <div id="fecharPopup" class="pr-2 pl-2 btn btn-outline-danger">X</div>
       </div>
+
+        <div class="btn-group btn-group-toggle container mt-1 pb-3" data-toggle="buttons">
+            <label class="btn btn-light active" style="width: 50%;">
+                <input type="radio" name="options" id="optionCompra" autocomplete="off"> Compra
+            </label>
+            <label class="btn btn-light"  style="width: 50%;">
+                <input type="radio" name="options" id="optionVenda" autocomplete="off"> Venda
+            </label>
+        </div>
 
       <div id="divAdicionarProduto">
         <h5 class="text-center">Adicionar Produto</h5>
@@ -100,16 +110,75 @@
   <div>
     <nav class="bg-warning navbar navbar-light">
       <ul class="navbar-nav flex-row justify-content-center w-100">
-        <li class="nav-item"><a id="linkAdicionarProduto" class="nav-link" href="#">Adicionar</a></li>
-        <li class="nav-item ml-3"><a id="linkVenderProduto" class="nav-link" href="#">Vender</a></li>
-        <li class="nav-item ml-3"><a id="linkListaEstoque" class="nav-link active" href="#">Estoque</a></li>
+        <li class="nav-item"><a id="linkGestao" class="nav-link" href="#">Gestão</a></li>
+        <li class="nav-item ml-3"><a id="linkListaEstoque" class="nav-link" href="#">Estoque</a></li>
+        <li class="nav-item ml-3"><a id="linkHome" class="nav-link active" href="#">Home</a></li>
         <li class="nav-item ml-3"><a id="linkListaCompras" class="nav-link" href="#">Compras</a></li>
         <li class="nav-item ml-3"><a id="linkListaVendas" class="nav-link" href="#">Vendas</a></li>
       </ul>
     </nav>
   </div>
 
-  <div id="listaEstoque" class="border rounded m-2 p-2">
+  <div id="home" class="m-2 p-2">
+        <div class="bg-light shadow-lg rounded text-center p-2 pr-3 mb-3 d-flex justify-content-between align-items-center">
+        <i class="fa-solid fa-clipboard" style="font-size: 50px; color: rgb(72, 72, 255);"></i>
+        <h5>Resumo de Estoque</h5>
+        <div>
+            <h2 id="qtdItens" class="m-0">0</h2>
+            <p class="m-0">Itens</p>
+        </div>
+    </div>
+    
+    <div class="bg-warning shadow-lg rounded text-center mb-3">
+      <p class="m-0"><b>Resumo Geral</b></p>
+
+      <div class="text-center d-flex justify-content-around">
+        <div class="rounded p-2">
+          <p class="m-0"><b>Valor Aplicado</b></p>
+          <div class="d-flex align-items-center justify-content-center">
+            <p class="m-0">R$</p>
+            <h2 id="valorAplicado" class="m-0">00</h2>
+            <p id="centavosValorAplicado" class="m-0">,00</p>
+          </div>
+        </div>
+  
+        <div class="rounded p-2">
+          <p class="m-0"><b>Valor Recebido</b></p>
+          <div class="d-flex align-items-center justify-content-center">
+            <p class="m-0">R$</p>
+            <h2 id="valorRecebido" class="m-0">00</h2>
+            <p id="centavosValorRecebido" class="m-0">,00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-success shadow-lg rounded text-center mb-3">
+      <p class="m-0"><b>Mês atual</b></p>
+
+      <div class="text-center d-flex justify-content-around">
+        <div class="rounded p-2">
+          <p class="m-0"><b>Valor Aplicado</b></p>
+          <div class="d-flex align-items-center justify-content-center">
+            <p class="m-0">R$</p>
+            <h2 id="valorAplicadoUMes" class="m-0">00</h2>
+            <p id="centavosValorAplicadoUMes" class="m-0">,00</p>
+          </div>
+        </div>
+  
+        <div class="rounded p-2">
+          <p class="m-0"><b>Valor Recebido</b></p>
+          <div class="d-flex align-items-center justify-content-center">
+            <p class="m-0">R$</p>
+            <h2 id="valorRecebidoUMes" class="m-0">00</h2>
+            <p id="centavosValorRecebidoUMes" class="m-0">,00</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="listaEstoque" class="border rounded m-2 p-2 d-none">
     <div class="d-flex p-2 align-items-center">
       <h5 class="text-center m-0" style="width: 60%;">Estoque de materiais </h5>
       <select name="filtro" id="filtroEstoque" class="custom-select" style="width: 40%;">
@@ -166,6 +235,6 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script src="/estoque/script.js"></script>
+  <script src="/script.js"></script>
 </body>
 </html>

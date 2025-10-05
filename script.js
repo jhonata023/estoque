@@ -45,21 +45,29 @@ function calcularEstoque() {
     estoqueAgrupado = {};
 
     entrada.forEach(p => {
-    if (estoqueAgrupado[p.produto]) {
-        estoqueAgrupado[p.produto].compra = (((Number(estoqueAgrupado[p.produto].compra) * Number(estoqueAgrupado[p.produto].quantidade)) + (Number(p.compra) * Number(p.quantidade)))
-        / (Number(estoqueAgrupado[p.produto].quantidade) + Number(p.quantidade))).toFixed(2);
-        estoqueAgrupado[p.produto].quantidade += Number(p.quantidade);
-        estoqueAgrupado[p.produto].estMinimo = p.estMinimo;
-    } else {
-        estoqueAgrupado[p.produto] = { ...p, quantidade: Number(p.quantidade) };
-    }
+        // chave composta: produto + classeMaterial
+        const chave = `${p.produto}_${p.classeMaterial}`;
+
+        if (estoqueAgrupado[chave]) {
+            estoqueAgrupado[chave].compra = (
+                ((Number(estoqueAgrupado[chave].compra) * Number(estoqueAgrupado[chave].quantidade)) +
+                (Number(p.compra) * Number(p.quantidade))) /
+                (Number(estoqueAgrupado[chave].quantidade) + Number(p.quantidade))
+            ).toFixed(2);
+
+            estoqueAgrupado[chave].quantidade += Number(p.quantidade);
+            estoqueAgrupado[chave].estMinimo = p.estMinimo;
+        } else {
+            estoqueAgrupado[chave] = { ...p, quantidade: Number(p.quantidade) };
+        }
     });
 
     saida.forEach(ps => {
-        if (estoqueAgrupado[ps.produto]) {
-            estoqueAgrupado[ps.produto].quantidade -= Number(ps.quantidade);
+        const chave = `${ps.produto}_${ps.classeMaterial}`;
+        if (estoqueAgrupado[chave]) {
+            estoqueAgrupado[chave].quantidade -= Number(ps.quantidade);
         }
-    })
+    });
 }
 
 function salvarProduto(produto) {
